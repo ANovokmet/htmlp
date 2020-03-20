@@ -1,0 +1,97 @@
+<html lang="en">
+
+<head>
+    <title>htmlp Playground</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container-row {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .container-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .h-100 {
+            height: 100%;
+        }
+
+        #code-area {
+            resize: none;
+        }
+
+        .half {
+            width: 100%;
+            height: 100%;
+        }
+
+        .code {
+            background: black;
+            color: #8aff01;
+            font-family: Consolas, monaco, monospace;
+        }
+
+        #code-area,
+        #result-area,
+        #exec-area {
+            padding: 1rem;
+        }
+
+        /* code html preview */
+        #preview-area {
+            border: 1px dashed greenyellow;
+        }
+
+        #preview-area * {
+            padding: 5px;
+        }
+
+        declare {
+            display: block;
+            background: indigo;
+        }
+
+        identifier {
+            display: inline-block;
+            background: crimson;
+        }
+    
+        assign {
+            display: block;
+            background: cyan;
+        }
+                
+        const {
+            display: inline-block;
+            background: darkkhaki;
+        }
+
+
+    </style>
+    <script src="bundle.js"></script>
+</head>
+
+<body class="container-row">
+    <textarea id="code-area" class="half h-100"></textarea>
+    <div class="half container-column h-100">
+        <div id="result-area" class="half code"></div>
+        <div id="preview-area" class="half code"></div>
+        <div id="exec-area" class="half code"></div>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+{
+    "name": "htmlp",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "rollup -c",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "hast-util-from-parse5": "^5.0.3",
+        "parse5": "^5.1.1",
+        "to-vfile": "^6.1.0",
+        "unist-util-inspect": "^5.0.1"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^11.0.2",
+        "@rollup/plugin-json": "^4.0.2",
+        "@rollup/plugin-node-resolve": "^7.1.1",
+        "@types/hast": "^2.3.0",
+        "rollup": "^2.1.0"
+    }
+}
