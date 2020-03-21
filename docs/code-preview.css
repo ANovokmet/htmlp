@@ -1,0 +1,58 @@
+.code-preview * {
+    padding: 5px;
+}
+
+declare {
+    display: block;
+    background: indigo;
+}
+
+identifier {
+    display: inline-block;
+    background: crimson;
+}
+
+identifier:before,
+declare:before,
+member:after {
+    content: attr(name);
+}
+
+assign {
+    display: block;
+    background: cyan;
+}
+
+literal {
+    display: inline-block;
+    background: darkkhaki;
+}
+
+literal:before {
+    content: attr(value);
+}
+
+operation {
+    display: inline-block;
+    background: yellow;
+}
+
+operation:before {
+    content: attr(type);
+}
+
+call {
+    display: block;
+    background: blue;
+}
+
+call>.argument {
+    border-radius: 10px;
+}
+
+call>.target {}
+
+member {
+    display: inline-block;
+    background: brown;
+}

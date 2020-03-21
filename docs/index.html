@@ -54,33 +54,8 @@
         #preview-area {
             border: 1px dashed greenyellow;
         }
-
-        #preview-area * {
-            padding: 5px;
-        }
-
-        declare {
-            display: block;
-            background: indigo;
-        }
-
-        identifier {
-            display: inline-block;
-            background: crimson;
-        }
-    
-        assign {
-            display: block;
-            background: cyan;
-        }
-                
-        const {
-            display: inline-block;
-            background: darkkhaki;
-        }
-
-
     </style>
+    <link rel="stylesheet" type="text/css" href="code-preview.css">
     <script src="bundle.js"></script>
 </head>
 
@@ -88,7 +63,7 @@
     <textarea id="code-area" class="half h-100"></textarea>
     <div class="half container-column h-100">
         <div id="result-area" class="half code"></div>
-        <div id="preview-area" class="half code"></div>
+        <div id="preview-area" class="half code code-preview"></div>
         <div id="exec-area" class="half code"></div>
     </div>
     <script src="main.js"></script>

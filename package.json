@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "rollup -c",
+        "dev": "rollup -cw",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",

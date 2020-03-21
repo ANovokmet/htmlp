@@ -1,20 +1,17 @@
-var vfile = require('to-vfile')
-var parse5 = require('parse5')
-var inspect = require('unist-util-inspect')
-var fromParse5 = require('hast-util-from-parse5')
-var transpile = require('./transpiler')
+var vfile = require('to-vfile');
+var inspect = require('unist-util-inspect');
+var htmlp = require('.');
 
-var doc = vfile.readSync('./examples/assignment.html')
-var ast = parse5.parse(String(doc), { sourceCodeLocationInfo: true })
-var hast = fromParse5(ast, doc)
+var doc = vfile.readSync('./examples/call.html');
+var hast = htmlp.toHast(String(doc));
 
 console.log(inspect(hast));
 
-const newTree = traverse(hast); 
+const newTree = htmlp.traverse(hast); 
 console.log('Transformed tree:');
 console.log(newTree);
 
-const code = transpile(newTree);
+const code = htmlp.transpile(newTree);
 console.log('Transpiled code:');
 console.log(code);
 

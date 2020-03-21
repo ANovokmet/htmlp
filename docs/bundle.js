@@ -9838,35 +9838,93 @@ var htmlp = (function (exports) {
         }
     }
 
-    function transpileRoot(node, expression = '') {
-        for (let child of node.children) {
-            if(child.type === 'declaration') {
-                expression += transpileDeclaration(child);
-            }
-            
-            if(child.type === 'assignment') {
-                expression += transpileAssignment(child);
-            }
+    function transpileRoot(node, statements = '') {
+        for (let child of node.body) {
+            statements += transpileStatement(child);
         }
 
-        return expression;
+        return statements;
     }
 
-    function transpileAssignment(node) {
-        return `${node.left.value} = ${transpileExpression(node.right)};\n`;
+    function transpileStatement(node, statement = '') {
+        if(!node.body) {
+            return ';';
+        }
+
+        if(node.body.type === 'declaration') {
+            statement = transpileDeclaration(node.body);
+        } else {
+            statement = transpileExpression(node.body);
+        }
+
+        return `${statement};\n`;
     }
 
     function transpileExpression(node) {
-        if(node.type === 'constant') {
-            return node.value;
+        // statement
+        if(node.type == 'assignment') {
+            return transpileAssigmentExpression(node);
+        }
+
+        if(node.type == 'operation') {
+            return transpileOperationExpression(node);
+        }
+
+        if(node.type == 'literal') {
+            return transpileLiteral(node);
+        }
+
+        if(node.type == 'identifier') {
+            return transpileIdentifier(node);
+        }
+
+        if(node.type == 'call') {
+            return transpileCallExpression(node);
+        }
+
+        if(node.type == 'member') {
+            return transpileMemberExpression(node);
         }
     }
 
+    function transpileCallExpression(node) {
+        const target = transpileExpression(node.target);
+        const args = node.args.map(transpileExpression).join(', ');
+
+        return `${target}(${args})`;
+    }
+
+    function transpileMemberExpression(node) {
+        const target = transpileExpression(node.target);
+        
+        return `${target}.${node.property}`;
+    }
+
+    function transpileLiteral(node) {
+        return node.value;
+    }
+
+    function transpileIdentifier(node) {
+        return node.name;
+    }
+
+    function transpileAssigmentExpression(node) {
+        return `${transpileExpression(node.left)} = ${transpileExpression(node.right)}`;
+    }
+
+    function transpileOperationExpression(node) {
+        const left = transpileExpression(node.left);
+        const right = transpileExpression(node.right);
+        const operator = node.operator;
+
+        return `${left} ${operator} ${right}`;
+    }
+
     function transpileDeclaration(node) {
-        if(node.right) {
-            return `var ${node.left.value} = ${transpileExpression(node.right)};\n`;
+        if(node.init) {
+            return `var ${node.identifier} = ${transpileExpression(node.init)}`;
         } else {
-            return `var ${node.left.value};\n`;
+            return `var ${node.identifier}`;
         }
     }
 
@@ -9887,114 +9945,185 @@ var htmlp = (function (exports) {
     function traverseRoot(node) {
         const output = {
             type: 'root',
-            children: []
+            body: []
         };
 
-        for (let child of node.children) {
-            if (child.tagName == 'declare') {
-                output.children.push(traverseDeclaration(child));
+        const children = noEmptyNodes(node.children);
+
+        for (let child of children) {
+            output.body.push(traverseStatement(child));
+        }
+
+        return output;
+    }
+
+    function hasClass(node, className) {
+        return node && node.properties.className && node.properties.className.includes(className);
+    }
+
+    function traverseStatement(node) {
+        const output = {
+            type: 'statement',
+            body: null
+        };
+
+        if (node.tagName == 'declare') {
+            output.body = traverseDeclaration(node);
+        } else {
+            output.body = traverseExpression(node);
+        }
+
+        return output;
+    }
+
+    function traverseExpression(node) {
+        if(!node) {
+            return null;
+        }
+
+        // statement
+        if(node.tagName == 'assign') {
+            return traverseAssigmentExpression(node);
+        }
+
+        if(node.tagName == 'operation') {
+            return traverseOperationExpression(node);
+        }
+
+        if(node.tagName == 'literal') {
+            return traverseLiteral(node);
+        }
+
+        if(node.tagName == 'identifier') {
+            return traverseIdentifier(node);
+        }
+
+        if(node.tagName == 'call') {
+            return traverseCallExpression(node);
+        }
+
+        if(node.tagName == 'member') {
+            return traverseMemberExpression(node);
+        }
+    }
+
+    function traverseMemberExpression(node) {
+        const output = {
+            type: 'member',
+            property: node.properties.name,
+            target: null
+        };
+
+        const children = noEmptyNodes(node.children);
+
+        output.target = traverseExpression(children[0]);
+
+        return output;
+    }
+
+    function traverseCallExpression(node) {
+        const output = {
+            type: 'call',
+            target: null,
+            args: []
+        };
+
+        const children = noEmptyNodes(node.children);
+
+        for (let child of children) {
+            if(hasClass(child, 'target')) {
+                output.target = traverseExpression(child);
             }
 
-            if (child.tagName == 'assign') {
-                output.children.push(traverseAssignment(child));
+            if(hasClass(child, 'argument')) {
+                output.args.push(traverseExpression(child));
             }
         }
 
         return output;
     }
 
-    function traverseDeclaration(node) {
-        let output = {
-            type: 'declaration',
-            left: null,
-            right: null
-        };
-
-        console.log('declaration');
-        for (let child of node.children) {
-
-            if (child.tagName == 'identifier') {
-                output.left = traverseIdentifier(child);
-            }
-
-            if (child.tagName == 'const') {
-                output.right = traverseConstant(child);
-            }
-        }
-
-        return output;
-    }
-
-    function traverseAssignment(node) {
-        let output = {
+    function traverseAssigmentExpression(node) {
+        const output = {
             type: 'assignment',
             left: null,
             right: null
         };
 
-        console.log('assignment');
-        for (let child of node.children) {
-            if (child.tagName == 'identifier') {
-                output.left = traverseIdentifier(child);
-            }
+        const children = noEmptyNodes(node.children);
 
-            if (child.tagName == 'const') {
-                output.right = traverseConstant(child);
-            }
-        }
+        output.left = traverseExpression(children[0]);
+        output.right = traverseExpression(children[1]);
+
+        return output;
+    }
+
+    function traverseDeclaration(node) {
+        // identifier
+        const output = {
+            type: 'declaration',
+            identifier: node.properties.name,
+            init: null
+        };
+
+        const children = noEmptyNodes(node.children);
+
+        // init expression
+        output.init = traverseExpression(children[0]);
+
+        return output;
+    }
+
+    function noEmptyNodes(nodes) {
+        return nodes.filter(c => c.type != 'text' || c.value.trim());
+    }
+
+    function traverseLiteral(node) {
+        const output = {
+            type: 'literal',
+            value: node.properties.value
+        };
 
         return output;
     }
 
     function traverseIdentifier(node) {
-
         const output = {
             type: 'identifier',
-            value: null
+            name: node.properties.name
         };
 
-        for (let child of node.children) {
-            if (child.type == 'text') {
-                const constValue = child.value.trim();
-                if (!output.value) {
-                    output.value = constValue;
-                } else {
-                    throw new Error("Identifier has multiple names");
-                }
-            } else {
-                throw new Error("Invalid name for identifier");
-            }
-        }
+        // for (let child of node.children) {
+        //     if (child.type == 'text') {
+        //         const constValue = child.value.trim();
+        //         if (!output.value) {
+        //             output.value = constValue;
+        //         } else {
+        //             throw new Error("Identifier has multiple names");
+        //         }
+        //     } else {
+        //         throw new Error("Invalid name for identifier");
+        //     }
+        // }
 
         return output;
-        // else {
-        //     throw new Error("Identifier has no name");
-        // }
     }
 
-    function traverseConstant(node) {
+    function traverseOperationExpression(node) {
+        // operation type
         const output = {
-            type: 'constant',
-            value: null
+            type: 'operation',
+            operator: node.properties.type,
+            left: null,
+            right: null
         };
 
-        for (let child of node.children) {
-            if (child.type == 'text') {
-                const constValue = child.value.trim();
-                if (!output.value) {
-                    output.value = constValue;
-                } else {
-                    throw new Error("Constant has multiple values")
-                }
-            } else {
-                throw new Error("Invalid value for constant");
-            }
-        }
+        const children = noEmptyNodes(node.children);
+
+        output.left = traverseExpression(children[0]);
+        output.right = traverseExpression(children[1]);
 
         return output;
-        // } else {
-        //     throw new Error("Constant has no value");
-        // }
     }
 
     function toHast(html) {

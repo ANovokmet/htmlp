@@ -5,12 +5,13 @@ const execArea = document.getElementById('exec-area');
 const previewArea = document.getElementById('preview-area');
 
 codeArea.value = 
-`<declare>
-    <identifier>x</identifier>
-</declare>
+`<declare name="x"></declare>
 <assign>
-    <identifier>x</identifier>
-    <const>5</const>
+    <identifier name="x"></identifier>
+    <operation type="+">
+        <literal value="2"></literal>
+        <literal value="2"></literal>
+    </operation>
 </assign>`;
 
 function tryCompileCode() {
