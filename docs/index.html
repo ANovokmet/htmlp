@@ -11,6 +11,10 @@
             height: 100%;
         }
 
+        pre {
+            margin: 0;
+        }
+
         * {
             box-sizing: border-box;
         }
@@ -62,7 +66,7 @@
 <body class="container-row">
     <textarea id="code-area" class="half h-100"></textarea>
     <div class="half container-column h-100">
-        <div id="result-area" class="half code"></div>
+        <pre id="result-area" class="half code"></pre>
         <div id="preview-area" class="half code code-preview"></div>
         <div id="exec-area" class="half code"></div>
     </div>

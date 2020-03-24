@@ -18,12 +18,47 @@ function transpileStatement(node, statement = '') {
     }
 
     if(node.body.type === 'declaration') {
-        statement = transpileDeclaration(node.body);
+        statement = transpileDeclaration(node.body) + ';';
+    } else if (node.body.type === 'block') {
+        statement = transpileBlockStatement(node.body);
+    } else if (node.body.type === 'function') {
+        statement = transpileFunctionDeclaration(node.body);
+    } else if (node.body.type === 'return') {
+        statement = transpileReturnStatement(node.body) + ';';
     } else {
-        statement = transpileExpression(node.body);
+        statement = transpileExpression(node.body) + ';';
     }
 
-    return `${statement};\n`;
+    return `${statement}\n`;
+}
+
+function transpileReturnStatement(node) {
+    if(!node.arg) {
+        return 'return';
+    }
+
+    const arg = transpileExpression(node.arg);
+
+    return `return ${arg}`;
+}
+
+function transpileFunctionDeclaration(node) {
+    const body = transpileStatement(node.body);
+    const params = node.params.map(transpileExpression).join(', ');
+
+    return `function ${node.name}(${params}) ${body}`;
+}
+
+function transpileBlockStatement(node, statements = '') {
+    if(!node.body || node.body.length === 0) {
+        return '{ }';
+    }
+
+    for (let child of node.body) {
+        statements += `\t${transpileStatement(child)}`;
+    }
+
+    return `{\n${statements}}`;
 }
 
 function transpileExpression(node) {
@@ -79,11 +114,10 @@ function transpileAssigmentExpression(node) {
 }
 
 function transpileOperationExpression(node) {
-    const left = transpileExpression(node.left);
-    const right = transpileExpression(node.right);
     const operator = node.operator;
+    const operands = node.operands.map(transpileExpression).join(` ${operator} `);
 
-    return `${left} ${operator} ${right}`;
+    return `${operands}`;
 }
 
 function transpileDeclaration(node) {

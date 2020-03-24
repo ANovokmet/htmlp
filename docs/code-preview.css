@@ -43,7 +43,7 @@ operation:before {
 
 call {
     display: block;
-    background: blue;
+    background: cornflowerblue;
 }
 
 call>.argument {
@@ -55,4 +55,31 @@ call>.target {}
 member {
     display: inline-block;
     background: brown;
+}
+
+.code-preview div {
+    display: block;
+    background: gainsboro;
+}
+
+function {
+    display: block;
+    background: blue;
+}
+
+function > .parameter {
+    border-radius: 10px;
+}
+
+function > .body {
+
+}
+
+function:before {
+    content: attr(name);
+}
+
+return {
+    display: block;
+    background: green;
 }

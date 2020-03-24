@@ -42,10 +42,71 @@ function traverseStatement(node) {
 
     if (node.tagName == 'declare') {
         output.body = traverseDeclaration(node);
+    } else if (node.tagName == 'div') {
+        // block behaves same as 'statement'
+        // output.type = 'block' ?
+        // output = traverseBlockStatement ?
+        output.body = traverseBlockStatement(node);
+    } else if (node.tagName == 'function') {
+        output.body = traverseFunctionDeclaration(node);
+    } else if (node.tagName == 'return') {
+        // only within functions
+        output.body = traverseReturnStatement(node);
     } else {
         output.body = traverseExpression(node);
     }
 
+    return output;
+}
+
+function traverseReturnStatement(node) {
+    const output = {
+        type: 'return',
+        arg:  null
+    }
+
+    const children = noEmptyNodes(node.children);
+    if(children.length > 0) {
+        output.arg = traverseExpression(children[0]);
+    }
+
+    return output;
+}
+
+function traverseFunctionDeclaration(node) {
+    const output = {
+        type: 'function',
+        name: node.properties.name,
+        params: [],
+        body: null
+    };
+
+    const children = noEmptyNodes(node.children);
+
+    for (let child of children) {
+        if(hasClass(child, 'body')) {
+            output.body = traverseStatement(child);
+        }
+
+        if(hasClass(child, 'parameter')) {
+            output.params.push(traverseExpression(child));
+        }
+    }
+
+    return output;
+}
+
+function traverseBlockStatement(node) {
+    const output = {
+        type: 'block',
+        body: []
+    };
+
+    const children = noEmptyNodes(node.children);
+
+    for (let child of children) {
+        output.body.push(traverseStatement(child));
+    }
     return output;
 }
 
@@ -187,15 +248,15 @@ function traverseOperationExpression(node) {
     const output = {
         type: 'operation',
         operator: node.properties.type,
-        left: null,
-        right: null
+        operands: [],
     };
 
     const children = noEmptyNodes(node.children);
-
-    output.left = traverseExpression(children[0]);
-    output.right = traverseExpression(children[1]);
-
+    
+    for (let child of children) {
+        output.operands.push(traverseExpression(child));
+    }
+    
     return output;
 }
 
