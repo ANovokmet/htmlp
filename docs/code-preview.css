@@ -83,3 +83,18 @@ return {
     display: block;
     background: green;
 }
+
+if {
+    display: block;
+    background: blueviolet;
+}
+
+if .then {
+    display: block;
+    border: 1px solid black;
+}
+
+if .else {
+    display: block;
+    border: 1px solid red;
+}

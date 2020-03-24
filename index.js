@@ -52,8 +52,37 @@ function traverseStatement(node) {
     } else if (node.tagName == 'return') {
         // only within functions
         output.body = traverseReturnStatement(node);
+    } else if (node.tagName == 'if') {
+        output.body = traverseConditionalStatement(node);
     } else {
         output.body = traverseExpression(node);
+    }
+
+    return output;
+}
+
+function traverseConditionalStatement(node) {
+    const output = {
+        type: 'conditional',
+        test: null,
+        then: null,
+        else: null
+    };
+
+    const children = noEmptyNodes(node.children);
+
+    for (let child of children) {
+        if(hasClass(child, 'test')) {
+            output.test = traverseExpression(child);
+        }
+
+        if(hasClass(child, 'then')) {
+            output.then = traverseStatement(child);
+        }
+
+        if(hasClass(child, 'else')) {
+            output.else = traverseStatement(child);
+        }
     }
 
     return output;
@@ -63,7 +92,7 @@ function traverseReturnStatement(node) {
     const output = {
         type: 'return',
         arg:  null
-    }
+    };
 
     const children = noEmptyNodes(node.children);
     if(children.length > 0) {

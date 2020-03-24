@@ -9859,11 +9859,29 @@ var htmlp = (function (exports) {
             statement = transpileFunctionDeclaration(node.body);
         } else if (node.body.type === 'return') {
             statement = transpileReturnStatement(node.body) + ';';
+        } else if (node.body.type == 'conditional') {
+            statement = transpileConditionalStatement(node.body);
         } else {
             statement = transpileExpression(node.body) + ';';
         }
 
         return `${statement}\n`;
+    }
+
+    function transpileConditionalStatement(node, statement = '') {
+        const test = transpileExpression(node.test);
+
+        statement += `if (${test}) `;
+
+        if(node.then) {
+            statement += transpileStatement(node.then);
+        }
+
+        if(node.else) {
+            statement += `else ${transpileStatement(node.else)}`;
+        }
+        
+        return statement;
     }
 
     function transpileReturnStatement(node) {
@@ -10013,8 +10031,37 @@ var htmlp = (function (exports) {
         } else if (node.tagName == 'return') {
             // only within functions
             output.body = traverseReturnStatement(node);
+        } else if (node.tagName == 'if') {
+            output.body = traverseConditionalStatement(node);
         } else {
             output.body = traverseExpression(node);
+        }
+
+        return output;
+    }
+
+    function traverseConditionalStatement(node) {
+        const output = {
+            type: 'conditional',
+            test: null,
+            then: null,
+            else: null
+        };
+
+        const children = noEmptyNodes(node.children);
+
+        for (let child of children) {
+            if(hasClass(child, 'test')) {
+                output.test = traverseExpression(child);
+            }
+
+            if(hasClass(child, 'then')) {
+                output.then = traverseStatement(child);
+            }
+
+            if(hasClass(child, 'else')) {
+                output.else = traverseStatement(child);
+            }
         }
 
         return output;
