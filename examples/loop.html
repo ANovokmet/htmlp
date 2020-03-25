@@ -1,8 +1,24 @@
 <loop>
-    <operation class="test"><!--expression--></operation>
-    <declare class="init"></declare>
-    <operation class="update"><!--expression--></operation>
+    <assign class="step">
+        <identifier name="i"></identifier>
+        <operation type="+">
+            <identifier name="i"></identifier>
+            <literal value="1"></literal>
+        </operation>
+    </assign>
+    <declare class="init" name="i">
+        <literal value="0"></literal>
+    </declare>
+    <operation class="test" type="<">
+        <identifier name="i"></identifier>
+        <literal value="10"></literal>
+    </operation>
     <div class="body">
-
+        <call>
+            <member class="target" name="log">
+                <identifier name="console"></identifier>
+            </member>
+            <identifier class="argument" name="i"></identifier>
+        </call>
     </div>
 </loop>
