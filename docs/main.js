@@ -40,7 +40,7 @@ function previewCode() {
 
 function tryRunCode() {
     try {
-        //execArea.innerText = eval(resultArea.innerText);
+        execArea.innerText = eval(resultArea.innerText);
     } catch (error) {
         execArea.innerText = error.message;
         console.error('Error running js:', error);

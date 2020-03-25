@@ -276,7 +276,7 @@ function traverseDeclaration(node) {
 }
 
 function noEmptyNodes(nodes) {
-    return nodes.filter(c => c.type != 'text' || c.value.trim());
+    return nodes.filter(c => c.type != 'comment' && (c.type != 'text' || c.value.trim()));
 }
 
 function traverseLiteral(node) {
