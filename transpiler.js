@@ -27,6 +27,8 @@ function transpileStatement(node, statement = '') {
         statement = transpileReturnStatement(node.body) + ';';
     } else if (node.body.type == 'conditional') {
         statement = transpileConditionalStatement(node.body);
+    } else if (node.body.type == 'loop') { 
+        statement = transpileLoopStatement(node.body);
     } else {
         statement = transpileExpression(node.body) + ';';
     }
@@ -48,6 +50,22 @@ function transpileConditionalStatement(node, statement = '') {
     }
     
     return statement;
+}
+
+function transpileLoopStatement(node) {
+    const test = node.test ? transpileExpression(node.test) : '';
+    const step = node.step ? transpileExpression(node.step) : '';
+    let init = '';
+    if(node.init) {
+        if(node.init.type == 'declaration') {
+            init = transpileDeclaration(node.init);
+        } else {
+            init = transpileExpression(node.init);
+        }
+    }
+    const body = node.body ? transpileStatement(node.body) : '';
+
+    return `for (${init};${test};${step}) ${body}`;
 }
 
 function transpileReturnStatement(node) {

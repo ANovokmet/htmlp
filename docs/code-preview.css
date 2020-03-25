@@ -98,3 +98,16 @@ if .else {
     display: block;
     border: 1px solid red;
 }
+
+loop {
+    display: block;
+    background: purple;
+}
+
+loop > .init, loop > .test, loop > .step {
+    display: inline-block;
+}
+
+loop > .body {
+    display: block;
+}

@@ -9861,6 +9861,8 @@ var htmlp = (function (exports) {
             statement = transpileReturnStatement(node.body) + ';';
         } else if (node.body.type == 'conditional') {
             statement = transpileConditionalStatement(node.body);
+        } else if (node.body.type == 'loop') { 
+            statement = transpileLoopStatement(node.body);
         } else {
             statement = transpileExpression(node.body) + ';';
         }
@@ -9882,6 +9884,22 @@ var htmlp = (function (exports) {
         }
         
         return statement;
+    }
+
+    function transpileLoopStatement(node) {
+        const test = node.test ? transpileExpression(node.test) : '';
+        const step = node.step ? transpileExpression(node.step) : '';
+        let init = '';
+        if(node.init) {
+            if(node.init.type == 'declaration') {
+                init = transpileDeclaration(node.init);
+            } else {
+                init = transpileExpression(node.init);
+            }
+        }
+        const body = node.body ? transpileStatement(node.body) : '';
+
+        return `for (${init};${test};${step}) ${body}`;
     }
 
     function transpileReturnStatement(node) {
@@ -10033,6 +10051,8 @@ var htmlp = (function (exports) {
             output.body = traverseReturnStatement(node);
         } else if (node.tagName == 'if') {
             output.body = traverseConditionalStatement(node);
+        } else if (node.tagName == 'loop') {
+            output.body = traverseLoopStatement(node);
         } else {
             output.body = traverseExpression(node);
         }
@@ -10061,6 +10081,42 @@ var htmlp = (function (exports) {
 
             if(hasClass(child, 'else')) {
                 output.else = traverseStatement(child);
+            }
+        }
+
+        return output;
+    }
+
+    function traverseLoopStatement(node) {
+        const output = {
+            type: 'loop',
+            test: null,
+            step: null,
+            init: null,
+            body: null
+        };
+
+        const children = noEmptyNodes(node.children);
+
+        for (let child of children) {
+            if(hasClass(child, 'test')) {
+                output.test = traverseExpression(child);
+            }
+
+            if(hasClass(child, 'step')) {
+                output.step = traverseExpression(child);
+            }
+
+            if(hasClass(child, 'init')) {
+                if(child.tagName == 'declare') {
+                    output.init = traverseDeclaration(child);
+                } else {
+                    output.init = traverseExpression(child);
+                }
+            }
+
+            if(hasClass(child, 'body')) {
+                output.body = traverseStatement(child);
             }
         }
 
@@ -10274,7 +10330,7 @@ var htmlp = (function (exports) {
         return hast;
     }
 
-    var HTML_prog = {
+    var htmlp = {
         toHast,
         traverse,
         transpile: transpiler,
@@ -10286,16 +10342,16 @@ var htmlp = (function (exports) {
             return code;
         }
     };
-    var HTML_prog_1 = HTML_prog.toHast;
-    var HTML_prog_2 = HTML_prog.traverse;
-    var HTML_prog_3 = HTML_prog.transpile;
-    var HTML_prog_4 = HTML_prog.compile;
+    var htmlp_1 = htmlp.toHast;
+    var htmlp_2 = htmlp.traverse;
+    var htmlp_3 = htmlp.transpile;
+    var htmlp_4 = htmlp.compile;
 
-    exports.compile = HTML_prog_4;
-    exports.default = HTML_prog;
-    exports.toHast = HTML_prog_1;
-    exports.transpile = HTML_prog_3;
-    exports.traverse = HTML_prog_2;
+    exports.compile = htmlp_4;
+    exports.default = htmlp;
+    exports.toHast = htmlp_1;
+    exports.transpile = htmlp_3;
+    exports.traverse = htmlp_2;
 
     return exports;
 

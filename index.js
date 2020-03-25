@@ -54,6 +54,8 @@ function traverseStatement(node) {
         output.body = traverseReturnStatement(node);
     } else if (node.tagName == 'if') {
         output.body = traverseConditionalStatement(node);
+    } else if (node.tagName == 'loop') {
+        output.body = traverseLoopStatement(node);
     } else {
         output.body = traverseExpression(node);
     }
@@ -82,6 +84,42 @@ function traverseConditionalStatement(node) {
 
         if(hasClass(child, 'else')) {
             output.else = traverseStatement(child);
+        }
+    }
+
+    return output;
+}
+
+function traverseLoopStatement(node) {
+    const output = {
+        type: 'loop',
+        test: null,
+        step: null,
+        init: null,
+        body: null
+    };
+
+    const children = noEmptyNodes(node.children);
+
+    for (let child of children) {
+        if(hasClass(child, 'test')) {
+            output.test = traverseExpression(child);
+        }
+
+        if(hasClass(child, 'step')) {
+            output.step = traverseExpression(child);
+        }
+
+        if(hasClass(child, 'init')) {
+            if(child.tagName == 'declare') {
+                output.init = traverseDeclaration(child);
+            } else {
+                output.init = traverseExpression(child);
+            }
+        }
+
+        if(hasClass(child, 'body')) {
+            output.body = traverseStatement(child);
         }
     }
 
